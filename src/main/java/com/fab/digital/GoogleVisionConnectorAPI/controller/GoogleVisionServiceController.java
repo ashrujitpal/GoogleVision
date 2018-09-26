@@ -6,7 +6,11 @@ import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.net.ssl.SSLContext;
 
@@ -35,6 +39,7 @@ import com.fab.digital.GoogleVisionConnectorAPI.dao.Image;
 import com.fab.digital.GoogleVisionConnectorAPI.dao.Type;
 */
 import com.fab.digital.GoogleVisionConnectorAPI.dao.BinaryImageRequest;
+import com.fab.digital.GoogleVisionConnectorAPI.dao.ImageResponse;
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -53,11 +58,49 @@ import java.util.List;
 @RequestMapping("/google-vision")
 public class GoogleVisionServiceController {
 	
-	@GetMapping("/detect/emiratesid")
-	public String detectEmiratesId() {
+	@PostMapping("/detect/emiratesid/backend")
+	public ImageResponse detectEmiratesIdBack(RequestEntity<Base64ImageRequest> request) {
 		
+		List<AnnotateImageResponse> imageResponses = detectText(request);
 		
-		return "Check done";
+		AnnotateImageResponse response = imageResponses.get(0);
+		
+		String description = response.getTextAnnotations(0).getDescription();
+		
+		StringTokenizer str = new StringTokenizer(description, "\n");
+		
+		Map<String, String> dataMap = new LinkedHashMap<String,String>();
+		List<String> dataList = new LinkedList<String>();
+		
+		while (str.hasMoreElements()) {			
+			
+			String value = (String) str.nextElement();			
+			dataList.add(value);
+		}
+		String sexString = "";
+		StringTokenizer sexToken = new StringTokenizer(dataList.get(0).toString()," ");
+		while (sexToken.hasMoreElements()) {
+			sexString = sexToken.nextElement().toString();
+			
+		}
+		String dobValueString = dataList.get(2).toString()
+				                   +dataList.get(3).toString()
+				                   +dataList.get(4).toString()
+				                   +dataList.get(5).toString()
+				                   +dataList.get(6).toString();
+		String expString = dataList.get(10).toString();
+		String cardString = dataList.get(11).toString();
+		
+		dataMap.put("Sex",sexString);
+		dataMap.put("Date Of Birth",dobValueString);
+		dataMap.put("Expiary Date",expString);
+		dataMap.put("Card Number",cardString);
+		
+		ImageResponse imageResponse = new ImageResponse();
+		imageResponse.setBackSideEmiratesIdDetails(dataMap);
+		imageResponse.setTextDescription(description);
+		
+		return imageResponse;
 		
 	}
 	
@@ -135,14 +178,7 @@ public class GoogleVisionServiceController {
 		
 		List<AnnotateImageResponse> responses = null;
 		
-	    try {
-
-	      // The path to the image file to annotate
-	      /*String fileName = "C:\\Users\\ashru\\Downloads\\emiratesid.jpg";
-
-	      // Reads the image file into memory
-	      Path path = Paths.get(fileName);
-	      byte[] data = Files.readAllBytes(path);*/
+	    try {	      
 	    	
 	      byte[] data = Base64.decodeBase64(request.getBody().getImage());	
 	      ByteString imgBytes = ByteString.copyFrom(data);
@@ -165,7 +201,7 @@ public class GoogleVisionServiceController {
 	      responses = response.getResponsesList();
 	      
 	      
-	      for (AnnotateImageResponse res : responses) {
+	      /*for (AnnotateImageResponse res : responses) {
 			if (res.hasError()) {
 	          System.out.printf("Error: %s\n", res.getError().getMessage());
 	          return null;
@@ -175,7 +211,7 @@ public class GoogleVisionServiceController {
 	          annotation.getAllFields().forEach((k, v) ->
 	              System.out.printf("%s : %s\n", k, v.toString()));
 	        }
-	      }
+	      }*/
 	    }catch(Exception e) {
 	    	e.printStackTrace();
 	    }
