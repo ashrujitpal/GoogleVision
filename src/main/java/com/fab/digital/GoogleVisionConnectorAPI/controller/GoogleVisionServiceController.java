@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.http.HttpEntity;
@@ -25,15 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.fab.digital.GoogleVisionConnectorAPI.dao.Base64ImageRequest;
-
+/*
 import com.fab.digital.GoogleVisionConnectorAPI.dao.AnnotateImageRequest;
 import com.fab.digital.GoogleVisionConnectorAPI.dao.AnnotationImage;
 
 import com.fab.digital.GoogleVisionConnectorAPI.dao.Feature;
 import com.fab.digital.GoogleVisionConnectorAPI.dao.Image;
 import com.fab.digital.GoogleVisionConnectorAPI.dao.Type;
-
-/*
+*/
+import com.fab.digital.GoogleVisionConnectorAPI.dao.BinaryImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -43,7 +44,8 @@ import com.google.cloud.vision.v1.Feature.Type;
 import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.protobuf.ByteString;
-*/
+
+
 import java.util.List;
 
 
@@ -60,11 +62,11 @@ public class GoogleVisionServiceController {
 	}
 	
 	@PostMapping("/detect/text")
-	//public List<AnnotateImageResponse> detectText(RequestEntity<Base64ImageRequest> request) {
-	public String detectText(RequestEntity<Base64ImageRequest> request) {	
+	public List<AnnotateImageResponse> detectText(RequestEntity<Base64ImageRequest> request) {
+	//public String detectText(RequestEntity<Base64ImageRequest> request) {	
 	
 		
-		
+		/*
 		final String url = "https://vision.googleapis.com/v1/images:annotate";
 		
 		HttpHeaders httpHeaders = new HttpHeaders(); 
@@ -127,20 +129,22 @@ public class GoogleVisionServiceController {
 		
 		return response.getBody();
 		
-	}
+	}*/
 		
 		// Instantiates a client
-		/*
+		
 		List<AnnotateImageResponse> responses = null;
 		
 	    try {
 
 	      // The path to the image file to annotate
-	      String fileName = "C:\\Users\\ashru\\Downloads\\emiratesid.jpg";
+	      /*String fileName = "C:\\Users\\ashru\\Downloads\\emiratesid.jpg";
 
 	      // Reads the image file into memory
 	      Path path = Paths.get(fileName);
-	      byte[] data = Files.readAllBytes(path);
+	      byte[] data = Files.readAllBytes(path);*/
+	    	
+	      byte[] data = Base64.decodeBase64(request.getBody().getImage());	
 	      ByteString imgBytes = ByteString.copyFrom(data);
 
 	      // Builds the image annotation request
@@ -157,8 +161,10 @@ public class GoogleVisionServiceController {
 
 	      // Performs label detection on the image file
 	      BatchAnnotateImagesResponse response = vision.batchAnnotateImages(requests);
+	      
 	      responses = response.getResponsesList();
-
+	      
+	      
 	      for (AnnotateImageResponse res : responses) {
 			if (res.hasError()) {
 	          System.out.printf("Error: %s\n", res.getError().getMessage());
@@ -178,7 +184,7 @@ public class GoogleVisionServiceController {
 		return responses;
 		
 		
-	}*/
+	}
 	
 
 }
