@@ -1,5 +1,7 @@
 package com.fab.digital.GoogleVisionConnectorAPI.dao;
 
+import com.google.protobuf.Type;
+
 public class Feature {
 	
 	private Type type;

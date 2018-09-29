@@ -4,8 +4,10 @@ import java.util.Map;
 
 public class ImageResponse {
 	
-	private Map backSideEmiratesIdDetails;
+	private Map<?, ?> backSideEmiratesIdDetails;
+	private Map<?, ?> frontSideEmiratesIdDetails;
 	private String textDescription;
+	private Image image;
 
 	public String getTextDescription() {
 		return textDescription;
@@ -15,12 +17,28 @@ public class ImageResponse {
 		this.textDescription = textDescription;
 	}
 
-	public Map getBackSideEmiratesIdDetails() {
+	public Map<?, ?> getBackSideEmiratesIdDetails() {
 		return backSideEmiratesIdDetails;
 	}
 
-	public void setBackSideEmiratesIdDetails(Map backSideEmiratesIdDetails) {
+	public void setBackSideEmiratesIdDetails(Map<?, ?> backSideEmiratesIdDetails) {
 		this.backSideEmiratesIdDetails = backSideEmiratesIdDetails;
+	}
+
+	public Map<?, ?> getFrontSideEmiratesIdDetails() {
+		return frontSideEmiratesIdDetails;
+	}
+
+	public void setFrontSideEmiratesIdDetails(Map<?, ?> frontSideEmiratesIdDetails) {
+		this.frontSideEmiratesIdDetails = frontSideEmiratesIdDetails;
+	}
+
+	public Image getImage() {
+		return image;
+	}
+
+	public void setImage(Image image) {
+		this.image = image;
 	}
 	
 
