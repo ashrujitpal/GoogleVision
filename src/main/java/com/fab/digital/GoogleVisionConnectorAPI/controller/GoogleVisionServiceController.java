@@ -126,27 +126,28 @@ public class GoogleVisionServiceController {
 		StringTokenizer str = new StringTokenizer(description, "\n");
 		
 		Map<String, String> dataMap = new LinkedHashMap<String,String>();
-		List<String> dataList = new LinkedList<String>();
 		
 		while (str.hasMoreElements()) {			
 			
 			String value = (String) str.nextElement();	
 			System.out.println("Token::::" + value);
-			dataList.add(value);
+			
+			if(value.contains("-")) {
+				dataMap.put("Resident Identity Card",value);
+			}else if(value.contains("Name")) {
+				dataMap.put(value.split(":")[0].toString(),value.split(":")[1].toString());
+			}else if(value.contains("Nationality")) {
+				dataMap.put(value.split(":")[0],value.split(":")[1]);
+			}else {
+				System.out.println("Ignored string:: "+value);
+			}
+			
+			
 		}		
-		
-		String idCardNumber = dataList.get(4).toString();
-		String nameString = dataList.get(6).toString();
-		String cardString = dataList.get(9).toString();
-		
-		dataMap.put("Resident Identity Card",idCardNumber);
-		dataMap.put(nameString.split(":")[0].toString(),nameString.split(":")[1].toString());
-		dataMap.put(cardString.split(":")[0],cardString.split(":")[1]);
 		
 		ImageResponse imageResponse = new ImageResponse();
 		imageResponse.setFrontSideEmiratesIdDetails(dataMap);
-		imageResponse.setTextDescription(description);
-		
+		imageResponse.setTextDescription(description);		
 		
 		return imageResponse;
 		
@@ -398,7 +399,7 @@ public class GoogleVisionServiceController {
       ByteString imgBytes = ByteString.copyFrom(data);
 	
 	  Image img = Image.newBuilder().setContent(imgBytes).build();
-	  CropHintsParams cropHintsParams = CropHintsParams.newBuilder().clearAspectRatios().addAspectRatios((float) 1.77).build();
+	  CropHintsParams cropHintsParams = CropHintsParams.newBuilder().clearAspectRatios().addAspectRatios((float) 1.01).build();
 	  
 	  Feature feat = Feature.newBuilder().setType(Type.CROP_HINTS).build();
 	  AnnotateImageRequest request1 =
