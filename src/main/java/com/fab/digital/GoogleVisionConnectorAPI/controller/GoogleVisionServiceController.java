@@ -78,7 +78,7 @@ public class GoogleVisionServiceController {
 		Map<String, String> dataMap = new LinkedHashMap<String,String>();
 		List<String> dataList = new LinkedList<String>();
 		
-		while (str.hasMoreElements()) {			
+		/*while (str.hasMoreElements()) {			
 			
 			String value = (String) str.nextElement();			
 			dataList.add(value);
@@ -98,9 +98,39 @@ public class GoogleVisionServiceController {
 		String cardString = dataList.get(11).toString();
 		
 		dataMap.put("Sex",sexString);
-		dataMap.put("Date Of Birth",dobValueString);
-		dataMap.put("Expiary Date",expString);
-		dataMap.put("Card Number",cardString);
+		dataMap.put("DateOfBirth",dobValueString);
+		dataMap.put("ExpiaryDate",expString);
+		dataMap.put("CardNumber",cardString);
+		*/
+		
+		while (str.hasMoreElements()) {			
+			
+			String value = (String) str.nextElement();
+			
+			System.out.println("Token::::" + value);
+			
+			if(value.contains("Sex")) {
+				dataMap.put(value.split(" ")[2],value.split(" ")[3]);
+			}else if(value.contains("Date of Birth")) {
+				
+				String value1 = (String) str.nextElement(); // 09
+				String value2 = (String) str.nextElement(); // /
+				String value3 = (String) str.nextElement(); // 01
+				String value4 = (String) str.nextElement(); // /
+				String value5 = (String) str.nextElement(); // 1979
+				String dobValueString = value1 + value2 + value3 + value4 + value5;
+				
+				
+				dataMap.put("DateOfBirth",dobValueString);
+			}else if(value.length()==10 && value.contains("/")) {
+				dataMap.put("ExpiryDate",value);
+			}
+			else {
+				System.out.println("Ignored string:: "+value);
+			}
+			
+		}
+		
 		
 		ImageResponse imageResponse = new ImageResponse();
 		imageResponse.setBackSideEmiratesIdDetails(dataMap);
@@ -133,7 +163,7 @@ public class GoogleVisionServiceController {
 			System.out.println("Token::::" + value);
 			
 			if(value.contains("-")) {
-				dataMap.put("Resident Identity Card",value);
+				dataMap.put("ResidentIdentityCard",value);
 			}else if(value.contains("Name")) {
 				dataMap.put(value.split(":")[0].toString(),value.split(":")[1].toString());
 			}else if(value.contains("Nationality")) {
@@ -142,12 +172,70 @@ public class GoogleVisionServiceController {
 				System.out.println("Ignored string:: "+value);
 			}
 			
-			
 		}		
 		
 		ImageResponse imageResponse = new ImageResponse();
 		imageResponse.setFrontSideEmiratesIdDetails(dataMap);
 		imageResponse.setTextDescription(description);		
+		
+		return imageResponse;
+		
+	}
+	
+	
+	@PostMapping("/detect/emiratesid/frontend/text/withimage")
+	public ImageResponse detectEmiratesIdFrontWithImage(RequestEntity<Base64ImageRequest> request) {
+		
+		Base64ImageRequest base64ImageRequest = request.getBody();
+		base64ImageRequest.setDetectionType(Type.DOCUMENT_TEXT_DETECTION);
+		
+		
+		List<AnnotateImageResponse> imageResponses = detectTextOrImage(base64ImageRequest);	
+		
+		AnnotateImageResponse response = imageResponses.get(0);
+		
+		String description = response.getTextAnnotations(0).getDescription();
+		
+		StringTokenizer str = new StringTokenizer(description, "\n");
+		
+		Map<String, String> dataMap = new LinkedHashMap<String,String>();
+		
+		while (str.hasMoreElements()) {			
+			
+			String value = (String) str.nextElement();	
+			System.out.println("Token::::" + value);
+			
+			if(value.contains("-")) {
+				dataMap.put("ResidentIdentityCard",value);
+			}else if(value.contains("Name")) {
+				dataMap.put(value.split(":")[0].toString(),value.split(":")[1].toString());
+			}else if(value.contains("Nationality")) {
+				dataMap.put(value.split(":")[0],value.split(":")[1]);
+			}else {
+				System.out.println("Ignored string:: "+value);
+			}
+			
+		}		
+		
+		ImageResponse imageResponse = new ImageResponse();
+		imageResponse.setFrontSideEmiratesIdDetails(dataMap);
+		imageResponse.setTextDescription(description);
+		
+		Base64ImageResponse response1 = null;
+		
+		// Instantiates a client
+		try {
+			response1 = detectFaces(request.getBody());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		imageResponse.setImage(response1.getImage());
+		
 		
 		return imageResponse;
 		
@@ -305,6 +393,8 @@ public class GoogleVisionServiceController {
 			
 		return response;
 	}
+	
+	
 	
 	public static Base64ImageResponse detectFaces(Base64ImageRequest request) throws Exception, IOException {
 		  List<AnnotateImageRequest> requests = new ArrayList<>();

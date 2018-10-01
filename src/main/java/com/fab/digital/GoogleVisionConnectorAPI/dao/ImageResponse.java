@@ -7,7 +7,7 @@ public class ImageResponse {
 	private Map<?, ?> backSideEmiratesIdDetails;
 	private Map<?, ?> frontSideEmiratesIdDetails;
 	private String textDescription;
-	private Image image;
+	private String image;
 
 	public String getTextDescription() {
 		return textDescription;
@@ -33,13 +33,15 @@ public class ImageResponse {
 		this.frontSideEmiratesIdDetails = frontSideEmiratesIdDetails;
 	}
 
-	public Image getImage() {
+	public String getImage() {
 		return image;
 	}
 
-	public void setImage(Image image) {
+	public void setImage(String image) {
 		this.image = image;
 	}
+
+	
 	
 
 }
